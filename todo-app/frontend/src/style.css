@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* Custom theme variables - PURE BLACK AND WHITE ONLY */
+:root {
+  /* Light Theme - Pure White */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --border-color: #E5E7EB;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --accent: #9CA3AF;
+}
+
+.dark {
+  /* Dark Theme - Pure Black */
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --border-color: #222222;
+  --text-primary: #FFFFFF;
+  --text-secondary: #EEEEEE;
+  --text-muted: #CCCCCC;
+  --accent: #888888;
+}
+
+/* Force override ALL gray colors to use pure black/white theme */
+.bg-white,
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark .bg-gray-800,
+.dark .bg-gray-900,
+.dark .bg-gray-700,
+.dark .bg-gray-600 {
+  background-color: var(--bg-primary) !important;
+}
+
+.bg-gray-50 {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .bg-gray-700,
+.dark .bg-gray-600 {
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-gray-900,
+.text-black {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-white,
+.dark .text-gray-100,
+.dark .text-gray-200 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-600,
+.text-gray-700,
+.text-gray-800 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-300,
+.dark .text-gray-200 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-500,
+.text-gray-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.border-gray-200,
+.border-gray-300 {
+  border-color: var(--border-color) !important;
+}
+
+.dark .border-gray-700,
+.dark .border-gray-600 {
+  border-color: var(--border-color) !important;
+}
+
+/* Custom utility classes for pure black/white theme */
+.theme-bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.theme-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+}
+
+.theme-border {
+  border-color: var(--border-color);
+}
+
+.theme-accent {
+  color: var(--accent);
+}
+
+.theme-accent-bg {
+  background-color: var(--accent);
+}
