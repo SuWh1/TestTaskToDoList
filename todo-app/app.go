@@ -2,8 +2,12 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"time"
 
+	"todo-app/backend/config"
+	"todo-app/backend/database"
 	"todo-app/backend/models"
 	"todo-app/backend/repository"
 	"todo-app/backend/services"
@@ -13,16 +17,36 @@ import (
 type App struct {
 	ctx         context.Context
 	taskService *services.TaskService
+	db          *sql.DB
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
+	// Initialize database configuration
+	dbConfig := config.NewDatabaseConfig()
+
+	// Log connection attempt
+	fmt.Printf("Attempting to connect to PostgreSQL at %s:%s/%s\n",
+		dbConfig.Host, dbConfig.Port, dbConfig.Database)
+
+	// Initialize database connection
+	db, err := database.InitDatabase(dbConfig)
+	if err != nil {
+		fmt.Printf("Database connection failed: %v\n", err)
+		fmt.Println("Please ensure PostgreSQL is running and accessible")
+		fmt.Printf("Connection string: %s\n", dbConfig.ConnectionString())
+		panic(fmt.Errorf("failed to initialize database: %w", err))
+	}
+
+	fmt.Println("✅ Successfully connected to PostgreSQL!")
+
 	// Initialize repository and service
-	repo := repository.NewTaskRepository()
+	repo := repository.NewPostgresTaskRepository(db)
 	taskService := services.NewTaskService(repo)
 
 	return &App{
 		taskService: taskService,
+		db:          db,
 	}
 }
 
@@ -30,6 +54,13 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+// shutdown is called when the app is shutting down
+func (a *App) shutdown(ctx context.Context) {
+	if a.db != nil {
+		a.db.Close()
+	}
 }
 
 // AddTask adds a new task

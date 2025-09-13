@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 	"time"
 
@@ -14,11 +13,11 @@ import (
 
 // TaskService handles business logic for tasks
 type TaskService struct {
-	repo *repository.TaskRepository
+	repo repository.TaskRepositoryInterface
 }
 
 // NewTaskService creates a new task service
-func NewTaskService(repo *repository.TaskRepository) *TaskService {
+func NewTaskService(repo repository.TaskRepositoryInterface) *TaskService {
 	return &TaskService{
 		repo: repo,
 	}
@@ -32,12 +31,6 @@ func (s *TaskService) AddTask(title string, priority models.Priority, dueDate *t
 		return nil, fmt.Errorf("task title cannot be empty")
 	}
 
-	// Load existing tasks
-	tasks, err := s.repo.LoadTasks()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load tasks: %w", err)
-	}
-
 	// Create new task
 	task := models.Task{
 		ID:        uuid.New().String(),
@@ -48,12 +41,9 @@ func (s *TaskService) AddTask(title string, priority models.Priority, dueDate *t
 		DueDate:   dueDate,
 	}
 
-	// Add to tasks list
-	tasks = append(tasks, task)
-
-	// Save tasks
-	if err := s.repo.SaveTasks(tasks); err != nil {
-		return nil, fmt.Errorf("failed to save tasks: %w", err)
+	// Create task in repository
+	if err := s.repo.CreateTask(&task); err != nil {
+		return nil, fmt.Errorf("failed to create task: %w", err)
 	}
 
 	return &task, nil
@@ -65,29 +55,9 @@ func (s *TaskService) DeleteTask(id string) error {
 		return fmt.Errorf("task ID cannot be empty")
 	}
 
-	// Load existing tasks
-	tasks, err := s.repo.LoadTasks()
-	if err != nil {
-		return fmt.Errorf("failed to load tasks: %w", err)
-	}
-
-	// Find and remove task
-	found := false
-	for i, task := range tasks {
-		if task.ID == id {
-			tasks = append(tasks[:i], tasks[i+1:]...)
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return fmt.Errorf("task with ID %s not found", id)
-	}
-
-	// Save tasks
-	if err := s.repo.SaveTasks(tasks); err != nil {
-		return fmt.Errorf("failed to save tasks: %w", err)
+	// Delete task from repository
+	if err := s.repo.DeleteTask(id); err != nil {
+		return fmt.Errorf("failed to delete task: %w", err)
 	}
 
 	return nil
@@ -99,83 +69,29 @@ func (s *TaskService) ToggleTask(id string) (*models.Task, error) {
 		return nil, fmt.Errorf("task ID cannot be empty")
 	}
 
-	// Load existing tasks
-	tasks, err := s.repo.LoadTasks()
+	// Get task from repository
+	task, err := s.repo.GetTaskByID(id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load tasks: %w", err)
+		return nil, fmt.Errorf("failed to get task: %w", err)
 	}
 
-	// Find and toggle task
-	var updatedTask *models.Task
-	for i, task := range tasks {
-		if task.ID == id {
-			tasks[i].Done = !tasks[i].Done
-			updatedTask = &tasks[i]
-			break
-		}
+	// Toggle completion status
+	task.Done = !task.Done
+
+	// Update task in repository
+	if err := s.repo.UpdateTask(task); err != nil {
+		return nil, fmt.Errorf("failed to update task: %w", err)
 	}
 
-	if updatedTask == nil {
-		return nil, fmt.Errorf("task with ID %s not found", id)
-	}
-
-	// Save tasks
-	if err := s.repo.SaveTasks(tasks); err != nil {
-		return nil, fmt.Errorf("failed to save tasks: %w", err)
-	}
-
-	return updatedTask, nil
+	return task, nil
 }
 
 // GetTasks returns all tasks with optional filtering and sorting
 func (s *TaskService) GetTasks(filter models.TaskFilter) ([]models.Task, error) {
-	// Load tasks from repository
-	tasks, err := s.repo.LoadTasks()
+	// Get tasks from repository with filtering and sorting
+	tasks, err := s.repo.GetTasks(filter)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load tasks: %w", err)
-	}
-
-	// Apply status filter
-	if filter.Status != "" && filter.Status != "all" {
-		var filteredTasks []models.Task
-		for _, task := range tasks {
-			switch filter.Status {
-			case "active":
-				if !task.Done {
-					filteredTasks = append(filteredTasks, task)
-				}
-			case "completed":
-				if task.Done {
-					filteredTasks = append(filteredTasks, task)
-				}
-			}
-		}
-		tasks = filteredTasks
-	}
-
-	// Apply sorting
-	switch filter.SortBy {
-	case "priority":
-		sort.Slice(tasks, func(i, j int) bool {
-			return tasks[i].Priority > tasks[j].Priority // High priority first
-		})
-	case "due_date":
-		sort.Slice(tasks, func(i, j int) bool {
-			if tasks[i].DueDate == nil && tasks[j].DueDate == nil {
-				return tasks[i].CreatedAt.After(tasks[j].CreatedAt)
-			}
-			if tasks[i].DueDate == nil {
-				return false // Tasks without due date go last
-			}
-			if tasks[j].DueDate == nil {
-				return true
-			}
-			return tasks[i].DueDate.Before(*tasks[j].DueDate)
-		})
-	default: // "created_at" or empty
-		sort.Slice(tasks, func(i, j int) bool {
-			return tasks[i].CreatedAt.After(tasks[j].CreatedAt) // Newest first
-		})
+		return nil, fmt.Errorf("failed to get tasks: %w", err)
 	}
 
 	return tasks, nil
@@ -183,21 +99,9 @@ func (s *TaskService) GetTasks(filter models.TaskFilter) ([]models.Task, error) 
 
 // GetTaskStats returns statistics about tasks
 func (s *TaskService) GetTaskStats() (*models.TaskStats, error) {
-	tasks, err := s.repo.LoadTasks()
+	stats, err := s.repo.GetTaskStats()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load tasks: %w", err)
-	}
-
-	stats := &models.TaskStats{
-		Total: len(tasks),
-	}
-
-	for _, task := range tasks {
-		if task.Done {
-			stats.Completed++
-		} else {
-			stats.Active++
-		}
+		return nil, fmt.Errorf("failed to get task stats: %w", err)
 	}
 
 	return stats, nil

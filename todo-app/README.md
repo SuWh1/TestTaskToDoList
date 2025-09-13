@@ -1,6 +1,6 @@
 # 📋 Wails TODO Application
 
-A modern, cross-platform desktop TODO application built with **Go** (backend) and **React + Tailwind CSS** (frontend) using the Wails framework.
+A modern, cross-platform desktop TODO application built with **Go** (backend) and **React + Tailwind CSS** (frontend) using the Wails framework. **Now with PostgreSQL database support for enhanced performance and scalability.**
 
 ## ✨ Features
 
@@ -51,11 +51,18 @@ A modern, cross-platform desktop TODO application built with **Go** (backend) an
 
 ### Backend (Go)
 ```
-internal/
+backend/
+├── config/         # Database configuration
+│   └── database.go # PostgreSQL connection settings
+├── database/       # Database initialization
+│   ├── init.go     # Database setup and schema
+│   └── schema.sql  # SQL schema definition
 ├── models/         # Data structures and types
 │   └── task.go     # Task model with Priority enum
 ├── repository/     # Data persistence layer
-│   └── task_repository.go  # JSON file operations
+│   ├── repository.go              # Repository interface
+│   ├── task_repository.go         # Legacy JSON file operations
+│   └── postgres_task_repository.go # PostgreSQL implementation
 └── services/       # Business logic layer
     └── task_service.go     # Task operations and validation
 ```
@@ -75,40 +82,97 @@ src/
 ## 🛠️ Technology Stack
 
 - **Backend**: Go 1.24+ with clean architecture
+- **Database**: PostgreSQL with connection pooling
 - **Frontend**: React 18 with modern hooks
 - **Styling**: Tailwind CSS with responsive design
 - **Framework**: Wails v2 for desktop app
 - **Build Tool**: Vite for fast development
-- **Data Storage**: JSON files (easily extensible to PostgreSQL)
+- **Data Storage**: PostgreSQL database (easily extensible)
 
-## 🚀 Getting Started
+## 🚀 How to Run the Program
 
 ### Prerequisites
-- Go 1.20+ installed
-- Node.js 16+ installed
-- Wails CLI v2 installed
+- **PostgreSQL** must be installed and running on port 5433
+- **Go 1.20+** installed ([Download Go](https://golang.org/dl/))
 
-### Installation
-1. Clone the repository
-2. Navigate to the project directory:
-   ```bash
-   cd todo-app
-   ```
-3. Install frontend dependencies:
-   ```bash
-   cd frontend && npm install
-   ```
+### 🔥 Quick Start (3 Simple Steps)
 
-### Development
-Run the application in development mode:
-```bash
-wails dev
+#### Step 1: Setup PostgreSQL Database
+```powershell
+# Connect to PostgreSQL (enter your postgres password when prompted)
+psql -h localhost -p 5433 -U postgres
+
+# Create the database and set password
+CREATE DATABASE todoapp;
+ALTER USER postgres PASSWORD 'postgres';
+\q
 ```
 
-### Building
-Create a production build:
-```bash
-wails build
+#### Step 2: Navigate to Project Directory
+```powershell
+cd "C:\Users\madis\Documents\Programming\Projects\startupsTestToDoList\todo-app"
+```
+
+#### Step 3: Run the Application
+```powershell
+go run .
+```
+
+**That's it!** 🎉 The Todo App will start and automatically create the database tables.
+
+---
+
+### 🔧 Alternative Database Setup (If PostgreSQL isn't on port 5433)
+
+If your PostgreSQL is on a different port, you can set environment variables:
+
+```powershell
+# Set your PostgreSQL connection details
+$env:DB_HOST="localhost"
+$env:DB_PORT="5432"          # Change to your PostgreSQL port
+$env:DB_USER="postgres"      # Change to your username
+$env:DB_PASSWORD="yourpass"  # Change to your password
+$env:DB_NAME="todoapp"
+
+# Then run the app
+go run .
+```
+
+### 🐳 Docker Alternative (If you prefer Docker)
+
+```powershell
+# Start PostgreSQL with Docker
+docker run --name postgres-todo -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=todoapp -p 5433:5432 -d postgres:15
+
+# Wait a few seconds, then run the app
+go run .
+```
+
+### 🏗️ Building for Distribution
+
+```powershell
+# Build a standalone executable
+go build -o todo-app.exe .
+
+# Run the built executable
+.\todo-app.exe
+```
+
+### 🚨 Troubleshooting
+
+**Database Connection Failed?**
+- ✅ Check PostgreSQL is running: `Get-Service postgresql*`
+- ✅ Verify port: Most PostgreSQL installations use 5432 or 5433
+- ✅ Test connection: `psql -h localhost -p 5433 -U postgres -c "SELECT 1;"`
+
+**"todoapp database does not exist"?**
+```powershell
+psql -h localhost -p 5433 -U postgres -c "CREATE DATABASE todoapp;"
+```
+
+**Permission denied?**
+```powershell
+psql -h localhost -p 5433 -U postgres -c "ALTER USER postgres PASSWORD 'postgres';"
 ```
 
 ## 📚 Usage
@@ -131,19 +195,24 @@ wails build
 
 ## 📁 Data Storage
 
-Tasks are stored in `data/tasks.json` with the following structure:
-```json
-[
-  {
-    "id": "unique-uuid",
-    "title": "Task title",
-    "done": false,
-    "created_at": "2025-09-13T...",
-    "priority": 0,
-    "due_date": "2025-09-20T..."
-  }
-]
+Tasks are now stored in **PostgreSQL** with the following schema:
+```sql
+CREATE TABLE tasks (
+    id UUID PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    done BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    priority INTEGER NOT NULL DEFAULT 0,  -- 0=Low, 1=Medium, 2=High
+    due_date TIMESTAMP WITH TIME ZONE NULL
+);
 ```
+
+**Benefits of PostgreSQL:**
+- ⚡ **Better Performance**: Efficient querying and indexing
+- 🔒 **Data Integrity**: ACID transactions and constraints
+- 📈 **Scalability**: Handle thousands of tasks without slowdown
+- 🔄 **Concurrent Access**: Multiple users can safely access data
+- 🛡️ **Advanced Features**: Full-text search, complex queries, backups
 
 ## 🎯 Score Breakdown
 
