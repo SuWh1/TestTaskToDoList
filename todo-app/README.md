@@ -1,5 +1,5 @@
 
-# � Wails TODO Desktop Application
+# Wails TODO Desktop Application
 
 A modern, cross-platform desktop TODO app built with **Go** (backend) and **React + Tailwind CSS** (frontend) using the [Wails](https://wails.io/) framework. Tasks are persisted locally using a JSON file. This app demonstrates clean architecture, desktop integration, and a minimalistic black/white UI theme.
 
@@ -119,3 +119,8 @@ All tasks are stored locally in a JSON file managed by the Go backend. No extern
 ![alt text](image.png)
 ![alt text](image-1.png)
 ![alt text](image-2.png)
+
+## Demo
+[![Watch Demo Video](https://img.icons8.com/ios-filled/50/000000/video.png)](https://drive.google.com/file/d/1dLDeQIjXvj6TXj1zRx1lRQ66l8mPGRnx/view?usp=sharing)
+
+[**Click here to watch the demo video**](https://drive.google.com/file/d/1dLDeQIjXvj6TXj1zRx1lRQ66l8mPGRnx/view?usp=sharing)
