@@ -1,244 +1,121 @@
-# 📋 Wails TODO Application
 
-A modern, cross-platform desktop TODO application built with **Go** (backend) and **React + Tailwind CSS** (frontend) using the Wails framework. **Now with PostgreSQL database support for enhanced performance and scalability.**
+# � Wails TODO Desktop Application
 
-## ✨ Features
+A modern, cross-platform desktop TODO app built with **Go** (backend) and **React + Tailwind CSS** (frontend) using the [Wails](https://wails.io/) framework. Tasks are persisted locally using a JSON file. This app demonstrates clean architecture, desktop integration, and a minimalistic black/white UI theme.
 
-### Core Functionality (160/160 points)
+---
 
-#### 🎨 UI (25/25 points)
-- ✅ Clean, modern interface with input field and task list
-- ✅ Task checkboxes for completion status
-- ✅ Delete buttons with confirmation modals
-- ✅ Responsive design that works on all screen sizes
-- ✅ **Bonus**: Dark/Light theme toggle with persistent preference
+## Features
 
-#### ➕ Adding Tasks (20/20 points)
-- ✅ Task title input with validation (prevents empty tasks)
-- ✅ **Bonus**: Priority levels (Low, Medium, High) with color coding
-- ✅ **Bonus**: Due dates with overdue detection
+- Add, edit, complete, and delete tasks
+- Task priorities (Low, Medium, High)
+- Due dates and overdue highlighting
+- Filter and sort tasks (All, Active, Completed, by date, priority, due date)
+- Persistent storage (local JSON file)
+- Responsive, minimalistic UI (pure black/white theme)
+- Light/Dark theme toggle
+- Task statistics (total, active, completed)
 
-#### 🗑️ Deleting Tasks (15/15 points)
-- ✅ Delete button for each task
-- ✅ **Bonus**: Confirmation modal before deletion
-- ✅ Safe deletion with backend integration
+---
 
-#### ✅ Task Completion Management (30/30 points)
-- ✅ Checkbox toggle for task completion
-- ✅ Visual feedback with strikethrough text for completed tasks
-- ✅ **Bonus**: Completed tasks remain visible but visually distinct
+## Technology Stack
 
-#### 💾 State Persistence (50/50 points)
-- ✅ JSON file storage for all task data
-- ✅ Automatic save/load on application start
-- ✅ Error handling for file operations
-- ✅ Clean architecture with repository pattern
+- **Backend:** Go (clean architecture, Wails bindings)
+- **Frontend:** React 18, Vite
+- **Styling:** Tailwind CSS 4, custom CSS variables
+- **Desktop Framework:** Wails v2
+- **Persistence:** Local JSON file
 
-#### 🔍 Filtering and Sorting (20/20 points)
-- ✅ Filter options: All, Active, Completed tasks
-- ✅ Sort by: Date Created, Priority, Due Date
-- ✅ **Bonus**: Real-time filtering and sorting
+---
 
-### 🚀 Additional Bonus Features
-- 📊 Task statistics (Total, Active, Completed)
-- 🌙 Dark/Light theme with system preference detection
-- 📱 Fully responsive design
-- ⚠️ Overdue task highlighting
-- 🎨 Modern UI with Tailwind CSS
-- 🔔 Visual feedback and smooth animations
+## Project Structure
 
-## 🏗️ Architecture
-
-### Backend (Go)
 ```
 backend/
-├── config/         # Database configuration
-│   └── database.go # PostgreSQL connection settings
-├── database/       # Database initialization
-│   ├── init.go     # Database setup and schema
-│   └── schema.sql  # SQL schema definition
-├── models/         # Data structures and types
-│   └── task.go     # Task model with Priority enum
-├── repository/     # Data persistence layer
-│   ├── repository.go              # Repository interface
-│   ├── task_repository.go         # Legacy JSON file operations
-│   └── postgres_task_repository.go # PostgreSQL implementation
-└── services/       # Business logic layer
-    └── task_service.go     # Task operations and validation
+├── models/         # Task data structures
+├── repository/     # JSON file persistence
+└── services/       # Business logic (CRUD, filtering, sorting)
+
+frontend/
+├── src/
+│   ├── components/ # React components (TaskInput, TaskList, etc.)
+│   ├── App.jsx     # Main app
+│   └── style.css   # Tailwind and theme overrides
+└── index.html      # App entry point
 ```
 
-### Frontend (React + Tailwind)
-```
-src/
-├── components/
-│   ├── TaskInput.jsx    # Task creation form
-│   ├── TaskList.jsx     # Task list with filtering/sorting
-│   ├── TaskItem.jsx     # Individual task component
-│   └── ThemeToggle.jsx  # Dark/light mode toggle
-├── App.jsx              # Main application
-└── main.jsx            # React entry point
-```
+---
 
-## 🛠️ Technology Stack
-
-- **Backend**: Go 1.24+ with clean architecture
-- **Database**: PostgreSQL with connection pooling
-- **Frontend**: React 18 with modern hooks
-- **Styling**: Tailwind CSS with responsive design
-- **Framework**: Wails v2 for desktop app
-- **Build Tool**: Vite for fast development
-- **Data Storage**: PostgreSQL database (easily extensible)
-
-## 🚀 How to Run the Program
+## Getting Started
 
 ### Prerequisites
-- **PostgreSQL** must be installed and running on port 5433
-- **Go 1.20+** installed ([Download Go](https://golang.org/dl/))
 
-### 🔥 Quick Start (3 Simple Steps)
+- [Go 1.20+](https://golang.org/dl/)
+- [Node.js 18+](https://nodejs.org/)
+- [Wails CLI](https://wails.io/docs/gettingstarted/installation)
 
-#### Step 1: Setup PostgreSQL Database
-```powershell
-# Connect to PostgreSQL (enter your postgres password when prompted)
-psql -h localhost -p 5433 -U postgres
+### Setup & Run
 
-# Create the database and set password
-CREATE DATABASE todoapp;
-ALTER USER postgres PASSWORD 'postgres';
-\q
-```
+1. **Clone the repository**
+   ```powershell
+   git clone https://github.com/SuWh1/TestTaskToDoList.git
+   cd TestTaskToDoList/todo-app
+   ```
 
-#### Step 2: Navigate to Project Directory
-```powershell
-cd "C:\Users\madis\Documents\Programming\Projects\startupsTestToDoList\todo-app"
-```
+2. **Install dependencies**
+   ```powershell
+   # Backend (Go)
+   wails doctor
 
-#### Step 3: Run the Application
-```powershell
-go run .
-```
+   # Frontend (Node.js)
+   npm install
+   ```
 
-**That's it!** 🎉 The Todo App will start and automatically create the database tables.
+3. **Run the application**
+   ```powershell
+   wails dev
+   ```
 
----
-
-### 🔧 Alternative Database Setup (If PostgreSQL isn't on port 5433)
-
-If your PostgreSQL is on a different port, you can set environment variables:
-
-```powershell
-# Set your PostgreSQL connection details
-$env:DB_HOST="localhost"
-$env:DB_PORT="5432"          # Change to your PostgreSQL port
-$env:DB_USER="postgres"      # Change to your username
-$env:DB_PASSWORD="yourpass"  # Change to your password
-$env:DB_NAME="todoapp"
-
-# Then run the app
-go run .
-```
-
-### 🐳 Docker Alternative (If you prefer Docker)
-
-```powershell
-# Start PostgreSQL with Docker
-docker run --name postgres-todo -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=todoapp -p 5433:5432 -d postgres:15
-
-# Wait a few seconds, then run the app
-go run .
-```
-
-### 🏗️ Building for Distribution
-
-```powershell
-# Build a standalone executable
-go build -o todo-app.exe .
-
-# Run the built executable
-.\todo-app.exe
-```
-
-### 🚨 Troubleshooting
-
-**Database Connection Failed?**
-- ✅ Check PostgreSQL is running: `Get-Service postgresql*`
-- ✅ Verify port: Most PostgreSQL installations use 5432 or 5433
-- ✅ Test connection: `psql -h localhost -p 5433 -U postgres -c "SELECT 1;"`
-
-**"todoapp database does not exist"?**
-```powershell
-psql -h localhost -p 5433 -U postgres -c "CREATE DATABASE todoapp;"
-```
-
-**Permission denied?**
-```powershell
-psql -h localhost -p 5433 -U postgres -c "ALTER USER postgres PASSWORD 'postgres';"
-```
-
-## 📚 Usage
-
-1. **Adding Tasks**: 
-   - Enter task title in the input field
-   - Set priority level (Low/Medium/High)
-   - Optionally set a due date
-   - Click "Add Task"
-
-2. **Managing Tasks**:
-   - Check the checkbox to mark as complete
-   - Click the delete button to remove (with confirmation)
-   - Use filters to view All/Active/Completed tasks
-   - Sort by date, priority, or due date
-
-3. **Customization**:
-   - Toggle between light and dark themes
-   - Theme preference is automatically saved
-
-## 📁 Data Storage
-
-Tasks are now stored in **PostgreSQL** with the following schema:
-```sql
-CREATE TABLE tasks (
-    id UUID PRIMARY KEY,
-    title VARCHAR(500) NOT NULL,
-    done BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    priority INTEGER NOT NULL DEFAULT 0,  -- 0=Low, 1=Medium, 2=High
-    due_date TIMESTAMP WITH TIME ZONE NULL
-);
-```
-
-**Benefits of PostgreSQL:**
-- ⚡ **Better Performance**: Efficient querying and indexing
-- 🔒 **Data Integrity**: ACID transactions and constraints
-- 📈 **Scalability**: Handle thousands of tasks without slowdown
-- 🔄 **Concurrent Access**: Multiple users can safely access data
-- 🛡️ **Advanced Features**: Full-text search, complex queries, backups
-
-## 🎯 Score Breakdown
-
-| Feature | Points | Status |
-|---------|--------|--------|
-| UI Design | 25/25 | ✅ Complete + Bonuses |
-| Adding Tasks | 20/20 | ✅ Complete + Bonuses |
-| Deleting Tasks | 15/15 | ✅ Complete + Bonuses |
-| Task Completion | 30/30 | ✅ Complete + Bonuses |
-| State Persistence | 50/50 | ✅ Complete |
-| Filtering & Sorting | 20/20 | ✅ Complete + Bonuses |
-| **Total** | **160/160** | ✅ **Perfect Score** |
-
-## 🔮 Future Enhancements
-
-- PostgreSQL database integration
-- Multi-user support
-- Task categories and tags
-- Notifications for due dates
-- Import/Export functionality
-- Cloud synchronization
-
-## 📄 License
-
-This project is built for educational purposes as part of a development assessment.
+   The app will launch as a desktop window.
 
 ---
 
-Built with ❤️ using Wails, Go, React, and Tailwind CSS
+## Build for Distribution
+
+```powershell
+wails build
+```
+
+The output executable will be in the `build/bin` directory.
+
+---
+
+## Usage
+
+1. **Add a task:** Enter a title, set priority/due date, click "Add Task".
+2. **Complete a task:** Click the checkbox.
+3. **Delete a task:** Click the delete button (confirmation shown).
+4. **Filter/sort:** Use filter/sort controls above the task list.
+5. **Theme toggle:** Switch between light and dark modes.
+
+---
+
+## Data Storage
+
+All tasks are stored locally in a JSON file managed by the Go backend. No external database required.
+
+---
+
+## Troubleshooting
+
+- **Wails CLI not found?** Install via `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+- **Build errors?** Run `wails doctor` and check Go/Node versions.
+- **UI not updating?** Restart the app and ensure frontend dependencies are installed.
+
+---
+
+## Preview
+![alt text]({F7B906DB-D13D-4A3F-A492-2CF9D2A888F9}.png)
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
